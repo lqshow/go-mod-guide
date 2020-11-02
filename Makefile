@@ -2,10 +2,14 @@ SHELL := /bin/bash
 
 BUILD_IMAGE := golang:alpine
 REGISTRY := docker.io/lqshow
-SINGLE_BUILD_IMAGE := $(REGISTRY)/go-mod-guide
+IMAGE_NAME := $(REGISTRY)/go-mod-guide
 VERSION := $(shell git rev-parse --short HEAD)
 
 all: build
+
+.PHONY: version
+version:
+	@echo $(VERSION)
 
 .PHONY: check
 check: format vet lint
@@ -34,13 +38,17 @@ build: check
 	@CGO_ENABLED=0 GOARCH=amd64 go build -a -installsuffix cgo -o ./bin/server .
 	@echo "ok"
 
-.PHONY: version
-version:
-	@echo $(VERSION)
+.PHONY: run
+run:
+	@bin/server
 
-.PHONY: image
-image:
-	@docker build -t $(SINGLE_BUILD_IMAGE):$(VERSION) -f Dockerfile --build-arg BUILD_IMAGE=$(BUILD_IMAGE) .
+.PHONY: build-image
+build-image:
+	@docker build -t $(IMAGE_NAME):$(VERSION) -f Dockerfile --build-arg BUILD_IMAGE=$(BUILD_IMAGE) .
+
+.PHONY: run-container
+run-container:
+	@docker run -it --rm  -p 3000:1323 $(IMAGE_NAME):$(VERSION)
 
 .PHONY: clean
 clean:

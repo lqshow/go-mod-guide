@@ -83,9 +83,12 @@ func hello(c echo.Context) error {
 
 Run aplication
 
-> 并不需要显示的导入 github.com/labstack/echo/v4，直接运行 `go run server.go`
+> 并不需要显示的导入 github.com/labstack/echo/v4，直接运行 `go run server.go` 
+>
 > go module 会自动检查到依赖项，并将其加入到 go.mod 中
+>
 > 新生成的 go.sum 中记录了完整的嵌套依赖关系集
+>
 > 所有依赖下载到 `$GOPATH/pkg/mod` 中
 
 ```bash
@@ -212,6 +215,8 @@ go get -u=patch git.example.com
 
 ## Package with Docker
 
+### Containerize application
+
 ```dockerfile
 # STEP 1 Build executable binary
 ARG BUILD_IMAGE=golang:alpine
@@ -239,6 +244,62 @@ COPY --from=builder /workspace/server .
 
 CMD ["/workspace/server"]
 ```
+
+### Build Image
+
+```bash
+➜ make build-image  
+Sending build context to Docker daemon  104.4kB
+Step 1/12 : ARG BUILD_IMAGE=golang:alpine
+Step 2/12 : FROM ${BUILD_IMAGE} as builder
+ ---> d099254f5fc3
+Step 3/12 : WORKDIR /workspace
+ ---> Using cache
+ ---> fc7806af8051
+Step 4/12 : COPY go.mod go.sum ./
+ ---> Using cache
+ ---> 837387da9d88
+Step 5/12 : RUN go mod download
+ ---> Using cache
+ ---> 124b7c88c6d6
+Step 6/12 : COPY ./ ./
+ ---> 1dad63bd101f
+Step 7/12 : RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o server .
+ ---> Running in 54c687eb25f1
+Removing intermediate container 54c687eb25f1
+ ---> 11e1e5571df9
+Step 8/12 : FROM alpine:3.11.0
+ ---> c85b8f829d1f
+Step 9/12 : RUN apk --no-cache add ca-certificates
+ ---> Using cache
+ ---> 6b41d14c62bd
+Step 10/12 : WORKDIR /workspace
+ ---> Using cache
+ ---> 1127ed5278fa
+Step 11/12 : COPY --from=builder /workspace/server .
+ ---> Using cache
+ ---> 092a4d124f04
+Step 12/12 : CMD ["/workspace/server"]
+ ---> Using cache
+ ---> f712f232359e
+Successfully built f712f232359e
+Successfully tagged lqshow/go-mod-guide:d530b4e
+```
+### Run Container
+```bash
+➜ make run-container
+
+   ____    __
+  / __/___/ /  ___
+ / _// __/ _ \/ _ \
+/___/\__/_//_/\___/ v4.1.17
+High performance, minimalist Go web framework
+https://echo.labstack.com
+____________________________________O/_______
+                                    O\
+⇨ http server started on [::]:1323
+```
+
 
 ## Referene
 
