@@ -1,0 +1,29 @@
+# syntax = docker/dockerfile:experimental
+# STEP 1 Build executable binary
+ARG BUILD_IMAGE=golang:alpine
+FROM ${BUILD_IMAGE} as builder
+
+WORKDIR /workspace
+
+# Install app dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy golang source code from the host
+COPY ./ ./
+
+# Get dependancies and Build the binary
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build go build -a -installsuffix cgo -o server .
+
+# STEP 2 Build a small image
+FROM alpine:3.11.0
+RUN apk --no-cache add ca-certificates
+WORKDIR /workspace
+
+# Copy our static executable binary
+COPY --from=builder /workspace/server .
+
+CMD ["/workspace/server"]

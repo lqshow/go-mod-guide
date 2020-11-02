@@ -300,6 +300,37 @@ ____________________________________O/_______
 ⇨ http server started on [::]:1323
 ```
 
+### Build images with BuildKit
+
+```bash
+➜ make buildkit-image
+[+] Building 4.4s (18/18) FINISHED                                                                                                                                                                                 
+ => [internal] load build definition from Dockerfile.buildkit                                                                                                                                                 0.0s
+ => => transferring dockerfile: 765B                                                                                                                                                                          0.0s
+ => [internal] load .dockerignore                                                                                                                                                                             0.0s
+ => => transferring context: 34B                                                                                                                                                                              0.0s
+ => resolve image config for docker.io/docker/dockerfile:experimental                                                                                                                                         4.0s
+ => CACHED docker-image://docker.io/docker/dockerfile:experimental@sha256:de85b2f3a3e8a2f7fe48e8e84a65f6fdd5cd5183afa6412fff9caa6871649c44                                                                    0.0s
+ => [internal] load metadata for docker.io/library/golang:alpine                                                                                                                                              0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.11.0                                                                                                                                              0.0s
+ => [stage-1 1/4] FROM docker.io/library/alpine:3.11.0                                                                                                                                                        0.0s
+ => [internal] load build context                                                                                                                                                                             0.0s
+ => => transferring context: 3.83kB                                                                                                                                                                           0.0s
+ => [builder 1/6] FROM docker.io/library/golang:alpine                                                                                                                                                        0.0s
+ => CACHED [stage-1 2/4] RUN apk --no-cache add ca-certificates                                                                                                                                               0.0s
+ => CACHED [stage-1 3/4] WORKDIR /workspace                                                                                                                                                                   0.0s
+ => CACHED [builder 2/6] WORKDIR /workspace                                                                                                                                                                   0.0s
+ => CACHED [builder 3/6] COPY go.mod go.sum ./                                                                                                                                                                0.0s
+ => CACHED [builder 4/6] RUN go mod download                                                                                                                                                                  0.0s
+ => CACHED [builder 5/6] COPY ./ ./                                                                                                                                                                           0.0s
+ => CACHED [builder 6/6] RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build go build -a -installsuffix cgo -o server .                                                 0.0s
+ => CACHED [stage-1 4/4] COPY --from=builder /workspace/server .                                                                                                                                              0.0s
+ => exporting to image                                                                                                                                                                                        0.0s
+ => => exporting layers                                                                                                                                                                                       0.0s
+ => => writing image sha256:a6817d3cd2cbde8e8daa4c6266cf7c6f2ba88caa1fc92c6b634a4405977d13f3                                                                                                                  0.0s
+ => => naming to docker.io/lqshow/go-mod-guide:c015bda                                                                                                                                                        0.0s
+```
+
 
 ## Referene
 
@@ -308,3 +339,4 @@ ____________________________________O/_______
 - [Introduction to Go Modules](https://roberto.selbach.ca/intro-to-go-modules/)
 - [Proposal: Secure the Public Go Module Ecosystem](https://go.googlesource.com/proposal/+/master/design/25530-sumdb.md#proxying-a-checksum-database)
 - [athens](https://github.com/gomods/athens)
+- [Build images with BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/)

@@ -50,6 +50,10 @@ build-image:
 run-container:
 	@docker run -it --rm  -p 3000:1323 $(IMAGE_NAME):$(VERSION)
 
+.PHONY: buildkit-image
+buildkit-image:
+	@DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME):$(VERSION) -f Dockerfile.buildkit --build-arg BUILD_IMAGE=$(BUILD_IMAGE) .
+
 .PHONY: clean
 clean:
 	@rm -rf ./bin
